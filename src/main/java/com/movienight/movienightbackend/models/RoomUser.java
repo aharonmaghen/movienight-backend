@@ -2,10 +2,13 @@ package com.movienight.movienightbackend.models;
 
 import java.time.LocalDateTime;
 
+import com.movienight.movienightbackend.models.compositeKeys.RoomUserId;
+
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
 /**
@@ -14,15 +17,19 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "room_users")
 public class RoomUser {
-  @ManyToOne
-  @JoinColumn(name = "room_id", referencedColumnName = "id")
   @EmbeddedId
+  private RoomUserId roomUserId;
+
+  @ManyToOne
+  @MapsId("roomId")
+  @JoinColumn(name = "room_id")
   private Room room;
 
   @ManyToOne
-  @JoinColumn(name = "user_id", referencedColumnName = "id")
-  @EmbeddedId
+  @MapsId("userId")
+  @JoinColumn(name = "user_id")
   private User user;
+
   private LocalDateTime updatedAt;
   private LocalDateTime createdAt;
 
@@ -41,10 +48,19 @@ public class RoomUser {
    * @param createdAt The creation timestamp of the room-user relationship.
    */
   public RoomUser(Room room, User user, LocalDateTime updatedAt, LocalDateTime createdAt) {
+    this.roomUserId = new RoomUserId(room.getId(), user.getId());
     this.room = room;
     this.user = user;
     this.updatedAt = updatedAt;
     this.createdAt = createdAt;
+  }
+
+  public RoomUserId getRoomUserId() {
+    return roomUserId;
+  }
+
+  public void setRoomUserId(RoomUserId roomUserId) {
+    this.roomUserId = roomUserId;
   }
 
   public Room getRoom() {
@@ -81,8 +97,7 @@ public class RoomUser {
 
   @Override
   public String toString() {
-    return "RoomUser{room=" + this.room +
-        ", user=" + this.user +
+    return "RoomUser{roomUserId=" + this.roomUserId +
         ", updatedAt=" + this.updatedAt +
         ", createdAt=" + this.createdAt + "}";
   }
@@ -94,8 +109,7 @@ public class RoomUser {
       return false;
     } else {
       RoomUser that = (RoomUser) roomUser;
-      return this.room.equals(that.getRoom()) &&
-          this.user.equals(that.getUser()) &&
+      return this.roomUserId.equals(that.getRoomUserId()) &&
           this.updatedAt.equals(that.getUpdatedAt()) &&
           this.createdAt.equals(that.getCreatedAt());
     }
@@ -104,9 +118,7 @@ public class RoomUser {
   public int hashCode() {
     int h$ = 1;
     h$ *= 1000003;
-    h$ ^= this.room.hashCode();
-    h$ *= 1000003;
-    h$ ^= this.user.hashCode();
+    h$ ^= this.roomUserId.hashCode();
     h$ *= 1000003;
     h$ ^= this.updatedAt.hashCode();
     h$ *= 1000003;

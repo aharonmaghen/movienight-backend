@@ -2,10 +2,13 @@ package com.movienight.movienightbackend.models;
 
 import java.time.LocalDateTime;
 
+import com.movienight.movienightbackend.models.compositeKeys.RoomMovieId;
+
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
 /**
@@ -14,14 +17,17 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "room_movies")
 public class RoomMovie {
-  @ManyToOne
-  @JoinColumn(name = "room_id", referencedColumnName = "id")
   @EmbeddedId
+  private RoomMovieId id;
+
+  @ManyToOne
+  @MapsId("roomId")
+  @JoinColumn(name = "room_id", referencedColumnName = "id")
   private Room room;
 
   @ManyToOne
+  @MapsId("movieId")
   @JoinColumn(name = "movie_id", referencedColumnName = "id")
-  @EmbeddedId
   private Movie movie;
   private LocalDateTime updatedAt;
   private LocalDateTime createdAt;
